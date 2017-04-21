@@ -21,6 +21,7 @@ database = create_engine('sqlite:///SnakeSpotter.db')
 server = Flask(__name__)
 restful_api = Api(server)
 metadata = MetaData(database)
+model = None;
 
 #Tables
 SnakeTable = Table('Snake', metadata, autoload=True)
@@ -37,8 +38,8 @@ class Sighting(Resource):
 		if request.content_type != 'application/json':
 			return {'content_type':request.content_type}
 		sighting = json.loads(request.data)
-		image = sighting['image']
-		species = 'Python'  #ML stuff goes here
+		image = image = np.fromstring(sighting['image'], np.uint8).reshape( h, w, nb_planes )
+		species = model.predict(extract_color_hist(image))
 		SightingTable.insert().values({'image':sighting['image'], 'time':sighting['time'],'location':sighting['location'], 'species':sighting['species'], 'observer':sighting['observer']}).execute()
 		return {'species':species}
 		
@@ -132,7 +133,7 @@ def train():
 	# show an update every 1,000 images
 		if i > 0 and i % 100 == 0:
 			print("[INFO] processed {}/{}".format(i, len(rattleImages)))
-	
+	"""
 	for (i, imagePath) in enumerate(coralImages):
 	# load the image and extract the class label (assuming that our
 	# path as the format: /path/to/dataset/{class}.{image_num}.jpg
@@ -155,6 +156,7 @@ def train():
 	# show an update every 1,000 images
 		if i > 0 and i % 100 == 0:
 			print("[INFO] processed {}/{}".format(i, len(coralImages)))
+			"""
 	(trainRI, testRI, trainRL, testRL) = train_test_split(rawImages, labels, test_size=0.25, random_state=42)
 	(trainFeat, testFeat, trainLabels, testLabels) = train_test_split(features, labels, test_size=0.25, random_state=42)
 	print("[INFO] evaluating raw pixel accuracy...")
