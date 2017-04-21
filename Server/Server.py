@@ -38,7 +38,7 @@ class Sighting(Resource):
 		if request.content_type != 'application/json':
 			return {'content_type':request.content_type}
 		sighting = json.loads(request.data)
-		image = image = np.fromstring(sighting['image'], np.uint8).reshape( h, w, nb_planes )
+		image = cv2.imdecode(np.fromstring(sighting['image'], np.uint8), cv2.CV_LOAD_IMAGE_COLOR)
 		species = model.predict(extract_color_hist(image))
 		SightingTable.insert().values({'image':sighting['image'], 'time':sighting['time'],'location':sighting['location'], 'species':sighting['species'], 'observer':sighting['observer']}).execute()
 		return {'species':species}
@@ -175,4 +175,4 @@ def train():
 
 if __name__ == '__main__':
 	train()
-	server.run()
+	server.run(host='0.0.0.0')
