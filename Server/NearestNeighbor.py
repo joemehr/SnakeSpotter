@@ -14,9 +14,12 @@ import cv2
 import os
 import pickle
 
+
+#Generates a 32x32 matrix of features from an image
 def image_to_feature_vector(image, size=(32,32)):
 	return cv2.resize(image, size).flatten()
 
+#Generates a color histogram from an image
 def extract_color_histogram(image, bins=(8, 8, 8)):
 	# extract a 3D color histogram from the HSV color space using
 	# the supplied number of `bins` per channel
@@ -36,6 +39,8 @@ def extract_color_histogram(image, bins=(8, 8, 8)):
 	# return the flattened histogram as the feature vector
 	return hist.flatten()
 	
+#Trains two k-nearest neighbor classifiers on a dataset of 2400 snakes
+#then saves the best one
 def train():
 	imageDir = "C:\Users\Joseph\Desktop\BID"
 	
@@ -133,3 +138,6 @@ def train():
 	f = open("model.pickle", "wb")
 	f.write(pickle.dumps(model))
 	f.close()
+
+if __name__ == '__main__':
+	train()

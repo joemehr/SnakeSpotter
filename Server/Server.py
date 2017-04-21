@@ -1,5 +1,6 @@
 #Joseph Mehr
-#Back end for the Snake Spotter database
+#Server.py exposes a RESTful API that can be used to
+#access the sqlite database, SnakeSpotter.db
 
 from flask import Flask, request, json
 from flask_restful import Resource, Api
@@ -31,12 +32,22 @@ SnakeTable = Table('Snake', metadata, autoload=True)
 SightingTable = Table('Sighting', metadata, autoload=True)
 UserTable = Table('User', metadata, autoload=True)
 
+#Represents the snale table in the database
 class Snake(Resource):
+
+	#Access with a HTTP.GET request to URL/snake/<species>
+	#Returns a description of that species from the database
     def get(self, species):
 		row = SnakeTable.select(SnakeTable.c.species == species).execute().fetchone();
 		return {'description':row[3]};
 		
+#Represents the Sighting table in the database
 class Sighting(Resource):
+
+	#Access with a HTTP.POST request to URL/sighting/
+	#Include a JSON body that has fields 'image', 'time', 
+	#'location', 'species', and 'observer'
+	#Returns the species name
 	def post(self):
 		if request.content_type != 'application/json':
 			return {'content_type':request.content_type}
@@ -46,7 +57,11 @@ class Sighting(Resource):
 		SightingTable.insert().values({'image':sighting['image'], 'time':sighting['time'],'location':sighting['location'], 'species':sighting['species'], 'observer':sighting['observer']}).execute()
 		return {'species':species}
 		
+#Represents the User table in the database
 class User(Resource):
+	
+	#Adds a user to the database
+	#Include a JSON body that contains the field 'name'
 	def post(self):
 		if request.content_type != 'application/json':
 			return {'content_type':request.content_type}
@@ -55,6 +70,7 @@ class User(Resource):
 		print UserTable.insert().values({'name':body['name']}).execute()
 		return {}
 
+#Links each class to a specific URL
 restful_api.add_resource(Snake, '/snake/<string:species>')
 restful_api.add_resource(Sighting, '/sighting/')
 restful_api.add_resource(User, '/user/')
@@ -62,4 +78,4 @@ restful_api.add_resource(User, '/user/')
 
 
 if __name__ == '__main__':
-	server.run(host='0.0.0.0')
+	server.run(host='0.0.0.0') #0.0.0.0 allows external API Access
