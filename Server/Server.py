@@ -39,7 +39,7 @@ class Snake(Resource):
 	#Returns a description of that species from the database
     def get(self, species):
 		row = SnakeTable.select(SnakeTable.c.species == species).execute().fetchone();
-		return {'description':row[3]};
+		return row[3];
 		
 #Represents the Sighting table in the database
 class Sighting(Resource):
@@ -49,13 +49,25 @@ class Sighting(Resource):
 	#'location', 'species', and 'observer'
 	#Returns the species name
 	def post(self):
-		if request.content_type != 'application/json':
-			return {'content_type':request.content_type}
-		sighting = json.loads(request.data)
-		image = cv2.imdecode(np.fromstring(sighting['image'], np.uint8), cv2.CV_LOAD_IMAGE_COLOR)
-		species = model.predict(NearestNeighbor.extract_color_hist(image))
+	#	if request.content_type != 'application/json':
+	#		print "Wrong content type!"
+	#		return {'content_type':request.content_type}
+		print "Received a request"
+		#sighting = json.loads(request.data)
+		sighting = request.get_json(force=True)
+		print sighting
+		print sighting['image']
+		image = cv2.imdecode(np.fromstring(sighting['image'].decode('base64'), np.uint8), cv2.IMREAD_COLOR)
+		f = open('image.bmp','wb')
+		f.write(sighting['image'].decode('base64'))
+		f.close()
+		#cv2.imshow('image', image);
+		species = model.predict(NearestNeighbor.extract_color_histogram(image))
+		
 		SightingTable.insert().values({'image':sighting['image'], 'time':sighting['time'],'location':sighting['location'], 'species':sighting['species'], 'observer':sighting['observer']}).execute()
-		return {'species':species}
+		print species[0]
+		#return {'species':species[0]}
+		return species[0]
 		
 #Represents the User table in the database
 class User(Resource):

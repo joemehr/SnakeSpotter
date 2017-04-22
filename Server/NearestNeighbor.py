@@ -1,3 +1,6 @@
+#This Nearest Neighbors implementation was created by following 
+#this guide: http://www.pyimagesearch.com/2016/08/08/k-nn-classifier-for-image-classification/
+
 from flask import Flask, request, json
 from flask_restful import Resource, Api
 from sqlalchemy import *
@@ -58,7 +61,7 @@ def train():
 	# path as the format: /path/to/dataset/{class}.{image_num}.jpg
 		
 		image = cv2.imread(imagePath)
-		label = "gartersnake"
+		label = "garter"
  
 	# extract raw pixel intensity "features", followed by a color
 	# histogram to characterize the color distribution of the pixels
@@ -80,7 +83,7 @@ def train():
 	# path as the format: /path/to/dataset/{class}.{image_num}.jpg
 		#print imagePath
 		image = cv2.imread(imagePath)
-		label = "rattlesnake"
+		label = "diamondback"
 
 	# extract raw pixel intensity "features", followed by a color
 	# histogram to characterize the color distribution of the pixels
@@ -102,7 +105,7 @@ def train():
 	# path as the format: /path/to/dataset/{class}.{image_num}.jpg
 		print imagePath
 		image = cv2.imread(imagePath)
-		label = "coralsnake"
+		label = "coral"
  
 	# extract raw pixel intensity "features", followed by a color
 	# histogram to characterize the color distribution of the pixels
@@ -123,13 +126,13 @@ def train():
 	(trainRI, testRI, trainRL, testRL) = train_test_split(rawImages, labels, test_size=0.25, random_state=42)
 	(trainFeat, testFeat, trainLabels, testLabels) = train_test_split(features, labels, test_size=0.25, random_state=42)
 	print("[INFO] evaluating raw pixel accuracy...")
-	model = KNeighborsClassifier(n_neighbors=20,
+	model = KNeighborsClassifier(n_neighbors=10,
 	n_jobs=1)
 	model.fit(trainRI, trainRL)
 	acc = model.score(testRI, testRL)
 	print("[INFO] histogram accuracy: {:.2f}%".format(acc * 100))
 	print("[INFO] evaluating histogram accuracy...")
-	model = KNeighborsClassifier(n_neighbors=20,
+	model = KNeighborsClassifier(n_neighbors=10,
 	n_jobs=1)
 	model.fit(trainFeat, trainLabels)
 	acc = model.score(testFeat, testLabels)
