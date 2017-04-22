@@ -47,6 +47,11 @@ class TestNearestNeighbor(unittest.TestCase):
 		species = model.predict(NearestNeighbor.extract_color_histogram(image))
 		print species[0]
 		assert species[0] == 'coral'
+	
+	#Verify that we are at minimum of 50% accuracy
+	def test_train(self):
+		accuracy = NearestNeighbor.train()
+		assert accuracy > 50
 
 if __name__ == '__main__':
 	unittest.main()

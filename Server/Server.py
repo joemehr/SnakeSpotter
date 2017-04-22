@@ -36,10 +36,10 @@ UserTable = Table('User', metadata, autoload=True)
 class Snake(Resource):
 
 	#Access with a HTTP.GET request to URL/snake/<species>
-	#Returns a description of that species from the database
+	#Returns a description and danger level of that species from the database
     def get(self, species):
 		row = SnakeTable.select(SnakeTable.c.species == species).execute().fetchone();
-		return row[3];
+		return str(row[3]) + str(' ') + str(row[5]);
 		
 #Represents the Sighting table in the database
 class Sighting(Resource):
@@ -49,24 +49,13 @@ class Sighting(Resource):
 	#'location', 'species', and 'observer'
 	#Returns the species name
 	def post(self):
-	#	if request.content_type != 'application/json':
-	#		print "Wrong content type!"
-	#		return {'content_type':request.content_type}
-		print "Received a request"
-		#sighting = json.loads(request.data)
 		sighting = request.get_json(force=True)
 		print sighting
 		print sighting['image']
 		image = cv2.imdecode(np.fromstring(sighting['image'].decode('base64'), np.uint8), cv2.IMREAD_COLOR)
-		f = open('image.bmp','wb')
-		f.write(sighting['image'].decode('base64'))
-		f.close()
-		#cv2.imshow('image', image);
 		species = model.predict(NearestNeighbor.extract_color_histogram(image))
-		
 		SightingTable.insert().values({'image':sighting['image'], 'time':sighting['time'],'location':sighting['location'], 'species':sighting['species'], 'observer':sighting['observer']}).execute()
 		print species[0]
-		#return {'species':species[0]}
 		return species[0]
 		
 #Represents the User table in the database
@@ -78,8 +67,6 @@ class User(Resource):
 		if request.content_type != 'application/json':
 			return {'content_type':request.content_type}
 		body = json.loads(request.data)
-		print body['name']
-		print UserTable.insert().values({'name':body['name']}).execute()
 		return {}
 
 #Links each class to a specific URL

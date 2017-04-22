@@ -103,7 +103,6 @@ def train():
 	for (i, imagePath) in enumerate(coralImages):
 	# load the image and extract the class label (assuming that our
 	# path as the format: /path/to/dataset/{class}.{image_num}.jpg
-		print imagePath
 		image = cv2.imread(imagePath)
 		label = "coral"
  
@@ -130,17 +129,18 @@ def train():
 	n_jobs=1)
 	model.fit(trainRI, trainRL)
 	acc = model.score(testRI, testRL)
-	print("[INFO] histogram accuracy: {:.2f}%".format(acc * 100))
+	print("[INFO] raw pixel accuracy: {:.2f}%".format(acc * 100))
 	print("[INFO] evaluating histogram accuracy...")
 	model = KNeighborsClassifier(n_neighbors=10,
 	n_jobs=1)
 	model.fit(trainFeat, trainLabels)
 	acc = model.score(testFeat, testLabels)
 
-	print("[INFO] raw pixel accuracy: {:.2f}%".format(acc * 100))
-	f = open("model.pickle", "wb")
-	f.write(pickle.dumps(model))
-	f.close()
-
+	print("[INFO] histogram pixel accuracy: {:.2f}%".format(acc * 100))
+	#f = open("model.pickle", "wb")
+	#f.write(pickle.dumps(model))
+	#f.close()
+	return acc * 100;
+	
 if __name__ == '__main__':
 	train()
